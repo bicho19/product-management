@@ -21,8 +21,13 @@ module.exports = {
     createProductSchema: {
         body: {
             type: 'object',
-            required: ['name', 'description'],
+            required: ['categoryId', 'name', 'description', 'price'],
             properties: {
+                categoryId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
                 name: {
                     type: "string",
                     nullable: false,

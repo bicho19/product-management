@@ -21,8 +21,16 @@ module.exports = {
     signupUserSchema: {
         body: {
             type: 'object',
-            required: ['email', 'password'],
+            required: ['firstName', 'lastName', 'email', 'password'],
             properties: {
+                firstName: {
+                    type: 'string',
+                    nullable: false
+                },
+                lastName: {
+                    type: 'string',
+                    nullable: false
+                },
                 email: {
                     type: 'string',
                     nullable: false,

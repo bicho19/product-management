@@ -20,6 +20,8 @@ fastify.register(require('@fastify/jwt'), {
     },
 });
 
+fastify.register(require('./plugins/auth-user-plugin'), {});
+
 
 // declare the routes
 routes(fastify);

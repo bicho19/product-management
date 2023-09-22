@@ -12,8 +12,9 @@ module.exports = {
     fetchProductsHandler: async (request, response) => {
         try {
 
+            // Fetch only enabled products
             const products = await Product.find({
-
+                isEnabled: true,
             });
 
             if (!products) {
@@ -39,10 +40,22 @@ module.exports = {
      */
     createProductHandler: async (request, response) => {
         try {
+
+            // check the category
+            const category = await Category.findOne({
+                _id: request.body.categoryId,
+            });
+
+            if (!category) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified category does not exists"));
+            }
+
             const product = await Product.create({
                 name: request.body.name,
                 description: request.body.description,
                 price: request.body.price,
+                category: category._id,
             });
 
             if (!product) {
@@ -52,6 +65,7 @@ module.exports = {
 
             return response.send(SuccessResponse(product));
         } catch (exception) {
+            request.log.error({exception}, 'Error creating the category');
             return response.code(500)
                 .send({
                     message: 'Error creating a new products',

@@ -17,6 +17,11 @@ const ProductSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Category'
+    },
     isEnabled: {
         type: Boolean,
         default: true,
@@ -25,8 +30,13 @@ const ProductSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    quantityInStock: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
 }, {
-    timestamp: true,
+    timestamps: true,
     versionKey: false,
 });
 

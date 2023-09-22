@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
 }, {
-    timestamp: true,
+    timestamps: true,
     versionKey: false,
 });
 
@@ -46,7 +46,8 @@ UserSchema.pre('save', async function (next) {
 UserSchema.set('toJSON', {
     transform: (doc, ret, options) => {
         ret.id = doc._id;
-        delete ret.pqssword;
+        delete ret._id;
+        delete ret.password;
     }
 });
 

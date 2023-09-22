@@ -1,11 +1,17 @@
 const fp = require("fastify-plugin")
 
-module.exports = fp(async function(fastify, opts) {
+const authPlugin = async function(fastify, _, next) {
     fastify.decorate("authenticate", async function(request, reply) {
         try {
-            await request.jwtVerify()
+            const data = await request.jwtVerify();
+            request.user = {
+                id: data.id,
+                email: data.email,
+            };
         } catch (err) {
             reply.send(err)
         }
     })
-})
+    next()
+}
+module.exports = fp(authPlugin);
