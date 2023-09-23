@@ -64,4 +64,23 @@ module.exports = {
             }
         }
     },
+
+    adminPurchaseStatsSchema: {
+        query: {
+            type: 'object',
+            required: [],
+            properties: {
+                startDate: {
+                    type: 'string',
+                    format: 'date',
+                    nullable: false,
+                },
+                endDate: {
+                    type: 'string',
+                    format: 'date',
+                    nullable: false,
+                },
+            }
+        }
+    },
 }

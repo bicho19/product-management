@@ -1,7 +1,7 @@
 const Product = require('../../database/models/product');
 const Purchase = require('../../database/models/purchase');
 const {HTTP_STATUS_CODE, ErrorResponse, SuccessResponse} = require("../../utils/response-util");
-
+const dayjs = require('dayjs');
 
 module.exports = {
 
@@ -162,6 +162,179 @@ module.exports = {
             return response.code(500)
                 .send({
                     message: 'Error fetching your purchase details',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
+    },
+
+    /**
+     * FEtch admin purchases stats
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    adminPurchaseStatsHandler: async (request, response) => {
+        try {
+
+            let startOfDate = dayjs()
+                .startOf('month')
+                .toDate();
+            let endOfDate = dayjs()
+                .endOf('month')
+                .toDate();
+
+            if (request.query.startDate && request.query.endDate) {
+                startOfDate = dayjs(request.query.startDate).toDate();
+                endOfDate = dayjs(request.query.endDate).toDate();
+            }
+
+            console.log(startOfDate);
+            console.log(endOfDate)
+            /**
+             * The aggregation pipelines declaration
+             * @type {PipelineStage[]}
+             */
+            const pipeline = [
+                {
+                    $match: {
+                        $and: [
+                            {
+                                createdAt: {
+                                    $gte: startOfDate,
+                                }
+                            },
+                            {
+                                createdAt: {
+                                    $lte: endOfDate,
+                                }
+                            }
+                        ]
+                    }
+                },
+                // Count total purchases
+                {
+                    $count: 'totalPurchases'
+                }
+            ]
+            const totalPurchasesData = await Purchase.aggregate(pipeline);
+
+            if (!totalPurchasesData) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "Could not fetch total purchases"));
+            }
+
+
+            /**
+             * The aggregation pipelines declaration
+             * @type {PipelineStage[]}
+             */
+            const topSellingPipeline = [
+                // match current selected period
+                {
+                    $match: {
+                        $and: [
+                            {
+                                createdAt: {
+                                    $gte: startOfDate,
+                                }
+                            },
+                            {
+                                createdAt: {
+                                    $lte: endOfDate,
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$products'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'products.product',
+                        foreignField: '_id',
+                        as: 'products.product'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$products.product'
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$products.product._id',
+                        totalSoldAmount: {
+                            $sum: {
+                                $multiply: [
+                                    "$products.product.price",
+                                    "$products.quantity"
+                                ]
+                            }
+                        },
+                        totalSoldQuantity: {
+                            $sum: "$products.quantity",
+                        }
+                    }
+                },
+                {
+                    $sort: {
+                        totalSold: -1
+                    }
+                },
+                {
+                    $limit: 5
+                },
+                // Fetch product details
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product',
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$product'
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$product._id',
+                        totalSoldAmount: 1,
+                        totalSoldQuantity: 1,
+                        name: '$product.name',
+                        description: '$product.description',
+                        price: '$product.price',
+                    }
+                }
+            ];
+            const topSellingProductData = await Purchase.aggregate(topSellingPipeline);
+
+            if (!topSellingProductData) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "Could not fetch total purchases"));
+            }
+
+
+
+            return response.send(SuccessResponse({
+                totalPurchases: totalPurchasesData[0]?.totalPurchases ?? 0,
+                topSellingProducts: topSellingProductData,
+            }));
+
+
+        } catch (exception) {
+            console.log(exception)
+            request.log.error({exception}, 'Error fetching purchase stats')
+            return response.code(500)
+                .send({
+                    message: 'Error fetching purchase stats',
                     code: 'SERVER_ERROR',
                 });
 

@@ -37,5 +37,14 @@ module.exports = (fastify, options, done) => {
         PurchaseHandlers.fetchUserPurchaseDetailsHandler,
     );
 
+    fastify.get(
+        "/stats",
+        {
+            onRequest: [fastify.authenticateAdmin],
+            schema: PurchaseSchema.adminPurchaseStatsSchema,
+        },
+        PurchaseHandlers.adminPurchaseStatsHandler,
+    );
+
     done();
 }
