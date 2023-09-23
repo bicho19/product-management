@@ -110,6 +110,14 @@ module.exports = {
                     type: "number",
                     nullable: false,
                 },
+                enabled: {
+                    type: "boolean",
+                    nullable: false,
+                },
+                available: {
+                    type: "boolean",
+                    nullable: false,
+                },
             },
         },
     },

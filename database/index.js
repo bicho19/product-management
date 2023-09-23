@@ -4,7 +4,8 @@ const Admin = require('./models/admin');
 const User = require('./models/user');
 const Product = require('./models/product');
 const Category = require('./models/category');
-const models = { User, Product, Category, Admin };
+const Purchase = require('./models/purchase');
+const models = { User, Product, Category, Admin, Purchase };
 
 const ConnectDB = async (fastify, options) => {
     try {

@@ -188,13 +188,23 @@ module.exports = {
             }
 
             if (request.body.name) {
-                product.name = request.body.name
+                product.name = request.body.name;
             }
             if (request.body.description) {
-                product.description = request.body.description
+                product.description = request.body.description;
             }
             if (request.body.price) {
-                product.price = request.body.price
+                product.price = request.body.price;
+            }
+
+            // Enabled status
+            if (typeof request.body.enabled !== "undefined") {
+                product.isEnabled = request.body.enabled;
+            }
+
+            // Available status
+            if (typeof request.body.available !== "undefined") {
+                product.isAvailable = request.body.available;
             }
 
             if (request.body.categoryId) {
@@ -207,7 +217,7 @@ module.exports = {
                         .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified category does not exists"));
                 }
                 // update product category
-                product.category = request.body.category
+                product.category = request.body.categoryId
             }
 
             await product.save();
