@@ -45,5 +45,14 @@ module.exports = (fastify, options, done) => {
         ProductHandlers.updateProductHandler,
     );
 
+    fastify.delete(
+        "/:productId",
+        {
+            onRequest: [fastify.authenticateAdmin],
+            schema: ProductSchema.deleteProductSchema,
+        },
+        ProductHandlers.deleteProductHandler,
+    );
+
     done();
 }

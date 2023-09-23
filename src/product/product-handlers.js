@@ -18,6 +18,7 @@ module.exports = {
             // Create the filter
             const filter = {
                 isEnabled: true,
+                isDeleted: false,
             };
 
             // search products by their name
@@ -101,6 +102,7 @@ module.exports = {
                 {
                     _id: request.params.productId,
                     isEnabled: true,
+                    isDeleted: false,
                 },
                 null,
                 {
@@ -125,7 +127,6 @@ module.exports = {
                     message: 'Error fetching product details',
                     code: 'SERVER_ERROR',
                 });
-
         }
     },
 
@@ -140,6 +141,7 @@ module.exports = {
             // check the category
             const category = await Category.findOne({
                 _id: request.body.categoryId,
+                isDeleted: false,
             });
 
             if (!category) {
@@ -180,6 +182,7 @@ module.exports = {
         try {
             const product = await Product.findOne({
                 _id: request.params.productId,
+                isDeleted: false,
             });
 
             if (!product) {
@@ -210,6 +213,7 @@ module.exports = {
             if (request.body.categoryId) {
                 const category = await Category.findOne({
                     _id: request.body.categoryId,
+                    isDeleted: false,
                 });
 
                 if (!category) {
@@ -228,6 +232,41 @@ module.exports = {
             return response.code(500)
                 .send({
                     message: 'Error updating product',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
+    },
+
+    /**
+     * A handler to delete product
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    deleteProductHandler: async (request, response) => {
+        try {
+            const product = await Product.findOne({
+                _id: request.params.productId,
+                isDeleted: false,
+            });
+
+            if (!product) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified product could not be found"));
+            }
+
+
+            // update the isDeleted field to true
+            product.isDeleted = true
+
+            await product.save();
+
+            return response.send(SuccessResponse(null, "Product has been deleted with success"));
+        } catch (exception) {
+            request.log.error({exception}, 'Error deleting the product');
+            return response.code(500)
+                .send({
+                    message: 'Error deleting product',
                     code: 'SERVER_ERROR',
                 });
 

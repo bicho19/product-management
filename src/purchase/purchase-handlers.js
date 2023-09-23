@@ -19,6 +19,7 @@ module.exports = {
             for (const item of request.body.products) {
                 const product = await Product.findOne({
                     _id: item.id,
+                    isDeleted: false,
                 });
 
                 if (!product || !product.isAvailable) {
@@ -77,15 +78,29 @@ module.exports = {
     userFetchPurchasesHandler: async (request, response) => {
         try {
 
+            const currentPage = request.query.page ?? 1;
+            const currentSize = request.query.size ?? 10;
+
+            // Create the filter
+            const filter = {
+                user: request.user.id,
+            };
+
+            // get total documents in the collection
+            const count = await Purchase.count(filter);
+
+
             const purchaseOrders = await Purchase.find(
                 {
-                    user: request.user.id,
+                    ...filter,
                 },
                 null,
                 {
                     sort: {
                         createdAt: -1,
                     },
+                    limit: currentSize,
+                    skip: (currentPage - 1) * currentSize
                 });
 
             if (!purchaseOrders) {
@@ -93,7 +108,12 @@ module.exports = {
                     .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "Could not fetch your purchases"));
             }
 
-            return response.send(SuccessResponse(purchaseOrders));
+            return response.send(SuccessResponse({
+                totalItems: count,
+                currentPage: currentPage,
+                totalPages: Math.ceil(count / currentSize),
+                data: purchaseOrders,
+            }));
 
 
         } catch (exception) {
@@ -106,4 +126,48 @@ module.exports = {
 
         }
     },
+
+    /**
+     * Endpoint to fetch user's purchase details
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    fetchUserPurchaseDetailsHandler: async (request, response) => {
+        try {
+
+            const purchaseOrder = await Purchase.find(
+                {
+                    _id: request.params.purchaseId,
+                    user: request.user.id,
+                },
+                null,
+                {
+                    populate: [
+                        {
+                            path: 'products.product'
+                        }
+                    ],
+                });
+
+            if (!purchaseOrder) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "Could not fetch the specified purchase"));
+            }
+
+            return response.send(SuccessResponse(purchaseOrder));
+
+
+        } catch (exception) {
+            request.log.error({exception}, 'Error fetching purchase details')
+            return response.code(500)
+                .send({
+                    message: 'Error fetching your purchase details',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
+    },
+
+
+
 }

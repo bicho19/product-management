@@ -121,4 +121,18 @@ module.exports = {
             },
         },
     },
+
+    deleteProductSchema: {
+        params: {
+            type: 'object',
+            required: ["productId"],
+            properties: {
+                productId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+            }
+        },
+    },
 }

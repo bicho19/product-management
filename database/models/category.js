@@ -18,6 +18,11 @@ const CategorySchema = new mongoose.Schema({
         required: true,
         default: true,
     },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 }, {
     timestamps: true,
     versionKey: false,
@@ -27,6 +32,7 @@ CategorySchema.set('toJSON', {
     transform: (doc, ret, options) => {
         ret.id = doc._id;
         delete ret._id;
+        delete ret.isDeleted;
     }
 });
 

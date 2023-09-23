@@ -37,5 +37,14 @@ module.exports = (fastify, options, done) => {
         CategoryHandlers.updateCategoryHandler,
     );
 
+    fastify.delete(
+        "/:categoryId",
+        {
+            onRequest: [fastify.authenticateAdmin],
+            schema: CategorySchema.deleteCategorySchema,
+        },
+        CategoryHandlers.deleteCategoryHandler,
+    );
+
     done();
 }

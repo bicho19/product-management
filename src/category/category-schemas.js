@@ -61,4 +61,18 @@ module.exports = {
             }
         }
     },
+
+    deleteCategorySchema: {
+        params: {
+            type: 'object',
+            required: ["categoryId"],
+            properties: {
+                categoryId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+            }
+        },
+    },
 }

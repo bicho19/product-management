@@ -35,6 +35,11 @@ const ProductSchema = new mongoose.Schema({
         required: true,
         default: 0,
     },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 }, {
     timestamps: true,
     versionKey: false,
@@ -44,6 +49,7 @@ ProductSchema.set('toJSON', {
     transform: (doc, ret, options) => {
         ret.id = doc._id;
         delete ret._id;
+        delete ret.isDeleted;
     }
 });
 

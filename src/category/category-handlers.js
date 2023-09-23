@@ -18,6 +18,7 @@ module.exports = {
             // Create the filter
             const filter = {
                 isEnabled: true,
+                isDeleted: false,
             };
 
             // get total documents in the collection
@@ -123,5 +124,40 @@ module.exports = {
                 });
 
         }
-    }
+    },
+
+    /**
+     * UA handler to soft delete a category
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    deleteCategoryHandler: async (request, response) => {
+        try {
+
+            const category = await Category.findOne({
+                _id: request.params.categoryId,
+                isDeleted: false,
+            });
+
+            if (!category) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified category could not be found"));
+            }
+
+            // update the isDeleted field to soft-delete it
+            category.isDeleted = true;
+
+            await category.save();
+
+            return response.send(SuccessResponse(null, 'The category has been deleted successfully'));
+        } catch (exception) {
+            request.log.error({exception}, 'Error deleting the category');
+            return response.code(500)
+                .send({
+                    message: 'Error deleting category',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
+    },
 }

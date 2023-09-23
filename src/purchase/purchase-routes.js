@@ -23,9 +23,18 @@ module.exports = (fastify, options, done) => {
         "/",
         {
             onRequest: [fastify.authenticate],
-            //schema: PurchaseSchema.userPurchaseProductsSchema,
+            schema: PurchaseSchema.fetchUserPurchasesSchema,
         },
         PurchaseHandlers.userFetchPurchasesHandler,
+    );
+
+    fastify.get(
+        "/:purchaseId",
+        {
+            onRequest: [fastify.authenticate],
+            schema: PurchaseSchema.fetchUserPurchaseDetailsSchema,
+        },
+        PurchaseHandlers.fetchUserPurchaseDetailsHandler,
     );
 
     done();

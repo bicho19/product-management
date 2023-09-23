@@ -31,4 +31,37 @@ module.exports = {
             }
         }
     },
+
+    fetchUserPurchasesSchema: {
+        query: {
+            type: 'object',
+            required: [],
+            properties: {
+                page: {
+                    type: "number",
+                    nullable: false,
+                    minimum: 1,
+                },
+                size: {
+                    type: "number",
+                    nullable: false,
+                    minimum: 5,
+                },
+            }
+        }
+    },
+
+    fetchUserPurchaseDetailsSchema: {
+        params: {
+            type: 'object',
+            required: ['purchaseId'],
+            properties: {
+                purchaseId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+            }
+        }
+    },
 }
