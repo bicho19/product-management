@@ -24,6 +24,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isBlocked: {
+        type: Boolean,
+        required: true,
+        default: false,
+    }
 }, {
     timestamps: true,
     versionKey: false,

@@ -12,16 +12,42 @@ module.exports = {
     fetchCategoriesHandler: async (request, response) => {
         try {
 
-            const categories = await Category.find({
+            const currentPage = request.query.page ?? 1;
+            const currentSize = request.query.size ?? 10;
 
-            });
+            // Create the filter
+            const filter = {
+                isEnabled: true,
+            };
+
+            // get total documents in the collection
+            const count = await Category.count(filter);
+
+            const categories = await Category.find(
+                {
+                    ...filter
+                },
+                null,
+                {
+                    sort: {
+                        createdAt: -1,
+                    },
+                    limit: currentSize,
+                    skip: (currentPage - 1) * currentSize
+                }
+            );
 
             if (!categories) {
                 return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
                     .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "No category was found"));
             }
 
-            return response.send(SuccessResponse(categories));
+            return response.send(SuccessResponse({
+                totalItems: count,
+                currentPage: currentPage,
+                totalPages: Math.ceil(count / currentSize),
+                data: categories,
+            }));
         } catch (exception) {
             return response.code(500)
                 .send({

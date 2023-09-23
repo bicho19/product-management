@@ -21,6 +21,7 @@ fastify.register(require('@fastify/jwt'), {
 });
 
 fastify.register(require('./plugins/auth-user-plugin'), {});
+fastify.register(require('./plugins/auth-admin-plugin'), {});
 
 
 // declare the routes

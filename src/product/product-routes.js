@@ -19,10 +19,18 @@ module.exports = (fastify, options, done) => {
         ProductHandlers.fetchProductsHandler,
     );
 
+    fastify.get(
+        "/:productId",
+        {
+            schema: ProductSchema.fetchProductDetailsSchema,
+        },
+        ProductHandlers.fetchProductDetailsHandler,
+    );
+
     fastify.post(
         "/",
         {
-            //onRequest: [fastify.authenticateAdmin],
+            onRequest: [fastify.authenticateAdmin],
             schema: ProductSchema.createProductSchema,
         },
         ProductHandlers.createProductHandler,

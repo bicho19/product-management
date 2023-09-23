@@ -22,6 +22,7 @@ module.exports = (fastify, options, done) => {
     fastify.post(
         "/",
         {
+            onRequest: [fastify.authenticateAdmin],
             schema: CategorySchema.createCategorySchema,
         },
         CategoryHandlers.createCategoryHandler,
