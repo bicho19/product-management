@@ -28,5 +28,14 @@ module.exports = (fastify, options, done) => {
         CategoryHandlers.createCategoryHandler,
     );
 
+    fastify.patch(
+        "/:categoryId",
+        {
+            onRequest: [fastify.authenticateAdmin],
+            schema: CategorySchema.updateCategorySchema,
+        },
+        CategoryHandlers.updateCategoryHandler,
+    );
+
     done();
 }

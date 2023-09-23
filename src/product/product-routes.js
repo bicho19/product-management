@@ -36,5 +36,14 @@ module.exports = (fastify, options, done) => {
         ProductHandlers.createProductHandler,
     );
 
+    fastify.patch(
+        "/:productId",
+        {
+            onRequest: [fastify.authenticateAdmin],
+            schema: ProductSchema.updateProductSchema,
+        },
+        ProductHandlers.updateProductHandler,
+    );
+
     done();
 }

@@ -76,4 +76,41 @@ module.exports = {
             }
         }
     },
+
+    updateProductSchema: {
+        params: {
+            type: 'object',
+            required: ["productId"],
+            properties: {
+                productId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+            }
+        },
+        body: {
+            type: 'object',
+            required: [],
+            properties: {
+                categoryId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+                name: {
+                    type: "string",
+                    nullable: false,
+                },
+                description: {
+                    type: "string",
+                    nullable: false,
+                },
+                price: {
+                    type: "number",
+                    nullable: false,
+                },
+            },
+        },
+    },
 }

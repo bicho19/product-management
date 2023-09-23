@@ -170,4 +170,57 @@ module.exports = {
 
         }
     },
+
+    /**
+     * Update product handler
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    updateProductHandler: async (request, response) => {
+        try {
+            const product = await Product.findOne({
+                _id: request.params.productId,
+            });
+
+            if (!product) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified product could not be found"));
+            }
+
+            if (request.body.name) {
+                product.name = request.body.name
+            }
+            if (request.body.description) {
+                product.description = request.body.description
+            }
+            if (request.body.price) {
+                product.price = request.body.price
+            }
+
+            if (request.body.categoryId) {
+                const category = await Category.findOne({
+                    _id: request.body.categoryId,
+                });
+
+                if (!category) {
+                    return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                        .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified category does not exists"));
+                }
+                // update product category
+                product.category = request.body.category
+            }
+
+            await product.save();
+
+            return response.send(SuccessResponse(product));
+        } catch (exception) {
+            request.log.error({exception}, 'Error updating the product');
+            return response.code(500)
+                .send({
+                    message: 'Error updating product',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
+    },
 }

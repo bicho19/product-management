@@ -85,5 +85,43 @@ module.exports = {
                 });
 
         }
+    },
+
+    /**
+     * Update a category
+     * @param {FastifyRequest} request
+     * @param {FastifyReply} response
+     */
+    updateCategoryHandler: async (request, response) => {
+        try {
+
+            const category = await Category.findOne({
+                _id: request.params.categoryId,
+            });
+
+            if (!category) {
+                return response.code(HTTP_STATUS_CODE.BAD_REQUEST)
+                    .send(ErrorResponse(HTTP_STATUS_CODE.BAD_REQUEST, "The specified category could not be found"));
+            }
+
+            if (request.body.name) {
+                category.name = request.body.name
+            }
+            if (request.body.description) {
+                category.description = request.body.description
+            }
+
+            await category.save();
+
+            return response.send(SuccessResponse(category));
+        } catch (exception) {
+            request.log.error({exception}, 'Error updating the category');
+            return response.code(500)
+                .send({
+                    message: 'Error updating category',
+                    code: 'SERVER_ERROR',
+                });
+
+        }
     }
 }

@@ -34,4 +34,31 @@ module.exports = {
             }
         }
     },
+    updateCategorySchema: {
+        params: {
+            type: 'object',
+            required: ["categoryId"],
+            properties: {
+                categoryId: {
+                    type: 'string',
+                    nullable: false,
+                    pattern: '^[0-9a-fA-F]{24}$'
+                },
+            }
+        },
+        body: {
+            type: 'object',
+            required: [],
+            properties: {
+                name: {
+                    type: "string",
+                    nullable: false,
+                },
+                description: {
+                    type: "string",
+                    nullable: false,
+                }
+            }
+        }
+    },
 }
