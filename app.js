@@ -27,6 +27,13 @@ fastify.register(require('./plugins/auth-admin-plugin'), {});
 // declare the routes
 routes(fastify);
 
+// Set default page
+fastify.get('/', (request, reply) => {
+    return reply.send({
+        statusCode: 200,
+        message: 'API is up and running'
+    });
+})
 // Run the server!
 fastify.listen(
     {
